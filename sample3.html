@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atlantis | Private Estate Collection</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:wght@300;400;500;600&family=Outfit:wght@200;300;400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --bg: #faf9f7;
+      --bg-dark: #f4f2ef;
+      --fg: #1c1c1c;
+      --fg-muted: #6b6b6b;
+      --accent: #9a8b7a;
+      --accent-light: #c4b8a8;
+      --border: #e8e5e1;
+      --card: #ffffff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg);
+      color: var(--fg);
+      font-weight: 300;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    .font-serif {
+      font-family: 'Cormorant Garant', serif;
+    }
+
+    /* Custom cursor */
+    .cursor {
+      width: 20px;
+      height: 20px;
+      border: 1px solid var(--fg);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+      transform: translate(-50%, -50%);
+    }
+
+    .cursor.hover {
+      transform: translate(-50%, -50%) scale(1.8);
+      border-color: var(--accent);
+      background: rgba(154, 139, 122, 0.1);
+    }
+
+    /* Smooth reveal animations */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), 
+                  transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* Hero parallax */
+    .parallax-img {
+      transition: transform 0.1s linear;
+    }
+
+    /* Image hover effect */
+    .img-container {
+      overflow: hidden;
+      position: relative;
+    }
+
+    .img-container img {
+      transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .img-container:hover img {
+      transform: scale(1.05);
+    }
+
+    .img-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(28, 28, 28, 0.4) 0%, transparent 50%);
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    .img-container:hover .img-overlay {
+      opacity: 1;
+    }
+
+    /* Navigation */
+    nav {
+      transition: background-color 0.4s ease, backdrop-filter 0.4s ease;
+    }
+
+    nav.scrolled {
+      background-color: rgba(250, 249, 247, 0.9);
+      backdrop-filter: blur(20px);
+    }
+
+    nav a {
+      position: relative;
+    }
+
+    nav a::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 1px;
+      background-color: var(--fg);
+      transition: width 0.3s ease;
+    }
+
+    nav a:hover::after {
+      width: 100%;
+    }
+
+    /* Horizontal scroll section */
+    .horizontal-scroll {
+      display: flex;
+      gap: 2rem;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .horizontal-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .scroll-item {
+      scroll-snap-align: start;
+      flex-shrink: 0;
+    }
+
+    /* Divider */
+    .divider {
+      width: 60px;
+      height: 1px;
+      background-color: var(--accent);
+    }
+
+    /* Button */
+    .btn-primary {
+      background-color: var(--fg);
+      color: var(--bg);
+      padding: 16px 40px;
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      border: none;
+      cursor: pointer;
+      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-color: var(--accent);
+      transform: translateX(-100%);
+      transition: transform 0.4s ease;
+    }
+
+    .btn-primary span {
+      position: relative;
+      z-index: 1;
+    }
+
+    .btn-primary:hover::before {
+      transform: translateX(0);
+    }
+
+    /* Stats counter */
+    .stat-number {
+      font-size: clamp(3rem, 8vw, 6rem);
+      font-weight: 300;
+      line-height: 1;
+      color: var(--accent-light);
+    }
+
+    /* Amenity cards */
+    .amenity-card {
+      padding: 3rem;
+      background-color: var(--card);
+      border: 1px solid var(--border);
+      transition: all 0.4s ease;
+    }
+
+    .amenity-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Menu overlay */
+    .menu-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: var(--fg);
+      color: var(--bg);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+
+    .menu-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .menu-overlay a {
+      font-family: 'Cormorant Garant', serif;
+      font-size: clamp(2rem, 6vw, 4rem);
+      font-weight: 300;
+      display: block;
+      padding: 0.5rem 0;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.4s ease, opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .menu-overlay.active a {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .menu-overlay a:hover {
+      color: var(--accent-light);
+    }
+
+    /* Loading screen */
+    .loader {
+      position: fixed;
+      inset: 0;
+      background-color: var(--fg);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+    }
+
+    .loader.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .loader-text {
+      font-family: 'Cormorant Garant', serif;
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
+      color: var(--bg);
+      font-weight: 300;
+      letter-spacing: 0.3em;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .reveal {
+        opacity: 1;
+        transform: none;
+        transition: none;
+      }
+      
+      .cursor {
+        display: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .cursor {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div class="loader" id="loader">
+    <span class="loader-text">ATLANTIS</span>
+  </div>
+
+  <!-- Custom Cursor -->
+  <div class="cursor" id="cursor"></div>
+
+  <!-- Navigation -->
+  <nav class="fixed top-0 left-0 right-0 z-50 px-6 md:px-12 py-6 md:py-8" id="nav">
+    <div class="flex items-center justify-between max-w-7xl mx-auto">
+      <a href="#" class="font-serif text-xl md:text-2xl tracking-widest font-light">ATLANTIS</a>
+      
+      <div class="hidden md:flex items-center gap-12">
+        <a href="#about" class="text-xs tracking-widest uppercase font-light">About</a>
+        <a href="#properties" class="text-xs tracking-widest uppercase font-light">Properties</a>
+        <a href="#amenities" class="text-xs tracking-widest uppercase font-light">Amenities</a>
+        <a href="#contact" class="text-xs tracking-widest uppercase font-light">Contact</a>
+      </div>
+
+      <button class="md:hidden flex flex-col gap-1.5" id="menuBtn" aria-label="Open menu">
+        <span class="w-6 h-px bg-current"></span>
+        <span class="w-6 h-px bg-current"></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div class="menu-overlay" id="menuOverlay">
+    <button class="absolute top-6 right-6 text-xs tracking-widest uppercase" id="closeMenu" aria-label="Close menu">Close</button>
+    <nav class="text-center">
+      <a href="#about" class="menu-link">About</a>
+      <a href="#properties" class="menu-link">Properties</a>
+      <a href="#amenities" class="menu-link">Amenities</a>
+      <a href="#contact" class="menu-link">Contact</a>
+    </nav>
+  </div>
+
+  <!-- Hero Section -->
+  <section class="relative h-screen flex items-center justify-center overflow-hidden">
+    <div class="absolute inset-0 parallax-img" id="heroImg">
+      <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&q=80" 
+           alt="Luxury estate exterior" 
+           class="w-full h-full object-cover"
+           loading="eager">
+    </div>
+    <div class="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/50"></div>
+    
+    <div class="relative z-10 text-center text-white px-6">
+      <p class="reveal text-xs md:text-sm tracking-[0.4em] uppercase mb-6 font-light opacity-80">Private Estate Collection</p>
+      <h1 class="reveal reveal-delay-1 font-serif text-5xl md:text-7xl lg:text-8xl font-light tracking-wide mb-8">Atlantis</h1>
+      <p class="reveal reveal-delay-2 text-sm md:text-base tracking-wider max-w-md mx-auto font-light opacity-80">Where refinement meets tranquility</p>
+    </div>
+
+    <div class="absolute bottom-12 left-1/2 -translate-x-1/2 text-white">
+      <div class="reveal reveal-delay-3 flex flex-col items-center gap-4">
+        <span class="text-xs tracking-widest uppercase opacity-60">Scroll</span>
+        <div class="w-px h-12 bg-white/30 relative overflow-hidden">
+          <div class="w-full h-1/2 bg-white absolute animate-pulse" style="animation: scrollLine 2s ease-in-out infinite;"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="py-24 md:py-40 px-6 md:px-12">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid md:grid-cols-2 gap-12 md:gap-24 items-center">
+        <div>
+          <div class="divider reveal mb-8"></div>
+          <h2 class="reveal reveal-delay-1 font-serif text-3xl md:text-5xl font-light mb-8 leading-tight">A Sanctuary of Understated Elegance</h2>
+          <p class="reveal reveal-delay-2 text-sm md:text-base leading-relaxed text-[var(--fg-muted)] mb-6">
+            Atlantis represents the pinnacle of residential excellence. Each residence has been thoughtfully designed to harmonize with its natural surroundings while offering an unprecedented level of sophistication.
+          </p>
+          <p class="reveal reveal-delay-3 text-sm md:text-base leading-relaxed text-[var(--fg-muted)]">
+            Our collection of exclusive properties embodies a philosophy where every detail serves a purpose, and every space tells a story of craftsmanship and intention.
+          </p>
+        </div>
+        <div class="reveal reveal-delay-2 img-container aspect-[4/5]">
+          <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1000&q=80" 
+               alt="Elegant interior living space" 
+               class="w-full h-full object-cover">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="py-16 md:py-24 px-6 md:px-12 bg-[var(--bg-dark)]">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4">
+        <div class="reveal text-center md:text-left">
+          <span class="stat-number font-serif">12</span>
+          <p class="text-xs tracking-widest uppercase mt-2 text-[var(--fg-muted)]">Exclusive Residences</p>
+        </div>
+        <div class="reveal reveal-delay-1 text-center md:text-left">
+          <span class="stat-number font-serif">84</span>
+          <p class="text-xs tracking-widest uppercase mt-2 text-[var(--fg-muted)]">Acres of Grounds</p>
+        </div>
+        <div class="reveal reveal-delay-2 text-center md:text-left">
+          <span class="stat-number font-serif">1952</span>
+          <p class="text-xs tracking-widest uppercase mt-2 text-[var(--fg-muted)]">Year Established</p>
+        </div>
+        <div class="reveal reveal-delay-3 text-center md:text-left">
+          <span class="stat-number font-serif">5</span>
+          <p class="text-xs tracking-widest uppercase mt-2 text-[var(--fg-muted)]">Star Hospitality</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Properties Section -->
+  <section id="properties" class="py-24 md:py-40 px-6 md:px-12">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 md:mb-24">
+        <div>
+          <div class="divider reveal mb-8"></div>
+          <h2 class="reveal reveal-delay-1 font-serif text-3xl md:text-5xl font-light">Featured Residences</h2>
+        </div>
+        <p class="reveal reveal-delay-2 text-sm text-[var(--fg-muted)] max-w-sm mt-6 md:mt-0">A curated selection of our most distinguished properties, each offering a unique perspective on refined living.</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-8 md:gap-12">
+        <!-- Property 1 -->
+        <article class="reveal group cursor-pointer" data-hover>
+          <div class="img-container aspect-[3/4] mb-6">
+            <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1000&q=80" 
+                 alt="The Waterfront Residence" 
+                 class="w-full h-full object-cover">
+            <div class="img-overlay"></div>
+          </div>
+          <div class="flex justify-between items-start">
+            <div>
+              <h3 class="font-serif text-xl md:text-2xl font-light mb-2 group-hover:text-[var(--accent)] transition-colors">The Waterfront Residence</h3>
+              <p class="text-xs text-[var(--fg-muted)] tracking-wider">4 Bedrooms | 6,200 sq ft | Water View</p>
+            </div>
+            <span class="font-serif text-lg text-[var(--accent)]">$4.2M</span>
+          </div>
+        </article>
+
+        <!-- Property 2 -->
+        <article class="reveal reveal-delay-1 group cursor-pointer md:mt-24" data-hover>
+          <div class="img-container aspect-[3/4] mb-6">
+            <img src="https://images.unsplash.com/photo-1600607687644-aac4c3eac7f4?w=1000&q=80" 
+                 alt="The Garden Pavilion" 
+                 class="w-full h-full object-cover">
+            <div class="img-overlay"></div>
+          </div>
+          <div class="flex justify-between items-start">
+            <div>
+              <h3 class="font-serif text-xl md:text-2xl font-light mb-2 group-hover:text-[var(--accent)] transition-colors">The Garden Pavilion</h3>
+              <p class="text-xs text-[var(--fg-muted)] tracking-wider">3 Bedrooms | 4,800 sq ft | Garden Access</p>
+            </div>
+            <span class="font-serif text-lg text-[var(--accent)]">$3.1M</span>
+          </div>
+        </article>
+
+        <!-- Property 3 -->
+        <article class="reveal group cursor-pointer" data-hover>
+          <div class="img-container aspect-[3/4] mb-6">
+            <img src="https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=1000&q=80" 
+                 alt="The Penthouse Suite" 
+                 class="w-full h-full object-cover">
+            <div class="img-overlay"></div>
+          </div>
+          <div class="flex justify-between items-start">
+            <div>
+              <h3 class="font-serif text-xl md:text-2xl font-light mb-2 group-hover:text-[var(--accent)] transition-colors">The Penthouse Suite</h3>
+              <p class="text-xs text-[var(--fg-muted)] tracking-wider">5 Bedrooms | 8,500 sq ft | Panoramic View</p>
+            </div>
+            <span class="font-serif text-lg text-[var(--accent)]">$7.8M</span>
+          </div>
+        </article>
+
+        <!-- Property 4 -->
+        <article class="reveal reveal-delay-1 group cursor-pointer md:mt-24" data-hover>
+          <div class="img-container aspect-[3/4] mb-6">
+            <img src="https://images.unsplash.com/photo-1600573472550-8090b5e0745e?w=1000&q=80" 
+                 alt="The Heritage Manor" 
+                 class="w-full h-full object-cover">
+            <div class="img-overlay"></div>
+          </div>
+          <div class="flex justify-between items-start">
+            <div>
+              <h3 class="font-serif text-xl md:text-2xl font-light mb-2 group-hover:text-[var(--accent)] transition-colors">The Heritage Manor</h3>
+              <p class="text-xs text-[var(--fg-muted)] tracking-wider">6 Bedrooms | 12,000 sq ft | Private Grounds</p>
+            </div>
+            <span class="font-serif text-lg text-[var(--accent)]">$12.5M</span>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Amenities Section -->
+  <section id="amenities" class="py-24 md:py-40 px-6 md:px-12 bg-[var(--fg)]">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-16 md:mb-24">
+        <div class="divider reveal mx-auto mb-8 bg-[var(--accent-light)]"></div>
+        <h2 class="reveal reveal-delay-1 font-serif text-3xl md:text-5xl font-light text-[var(--bg)]">Exceptional Amenities</h2>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="reveal amenity-card bg-[var(--bg)]">
+          <svg class="w-8 h-8 mb-6 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+          </svg>
+          <h3 class="font-serif text-xl mb-4">Private Residences</h3>
+          <p class="text-sm text-[var(--fg-muted)] leading-relaxed">Each home features custom millwork, imported stone, and floor-to-ceiling windows framing curated views.</p>
+        </div>
+
+        <div class="reveal reveal-delay-1 amenity-card bg-[var(--bg)]">
+          <svg class="w-8 h-8 mb-6 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+          </svg>
+          <h3 class="font-serif text-xl mb-4">Concierge Services</h3>
+          <p class="text-sm text-[var(--fg-muted)] leading-relaxed">Dedicated estate management available around the clock for every request, from travel arrangements to private events.</p>
+        </div>
+
+        <div class="reveal reveal-delay-2 amenity-card bg-[var(--bg)]">
+          <svg class="w-8 h-8 mb-6 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+          </svg>
+          <h3 class="font-serif text-xl mb-4">Wellness Center</h3>
+          <p class="text-sm text-[var(--fg-muted)] leading-relaxed">A sanctuary for mind and body featuring an infinity pool, spa suites, and private fitness pavilion.</p>
+        </div>
+
+        <div class="reveal amenity-card bg-[var(--bg)]">
+          <svg class="w-8 h-8 mb-6 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+          </svg>
+          <h3 class="font-serif text-xl mb-4">Private Library</h3>
+          <p class="text-sm text-[var(--fg-muted)] leading-relaxed">Curated collection of rare volumes in a climate-controlled reading room with fireplace and garden views.</p>
+        </div>
+
+        <div class="reveal reveal-delay-1 amenity-card bg-[var(--bg)]">
+          <svg class="w-8 h-8 mb-6 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <h3 class="font-serif text-xl mb-4">Landscaped Grounds</h3>
+          <p class="text-sm text-[var(--fg-muted)] leading-relaxed">84 acres of manicured gardens, walking trails, and private waterfront with dedicated staff for maintenance.</p>
+        </div>
+
+        <div class="reveal reveal-delay-2 amenity-card bg-[var(--bg)]">
+          <svg class="w-8 h-8 mb-6 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <h3 class="font-serif text-xl mb-4">24/7 Security</h3>
+          <p class="text-sm text-[var(--fg-muted)] leading-relaxed">Discreet, professional security ensuring complete privacy and peace of mind for all residents and guests.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Gallery Section -->
+  <section class="py-24 md:py-40 px-6 md:px-12">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-16">
+        <div>
+          <div class="divider reveal mb-8"></div>
+          <h2 class="reveal reveal-delay-1 font-serif text-3xl md:text-5xl font-light">The Estate</h2>
+        </div>
+      </div>
+
+      <div class="horizontal-scroll pb-8" id="gallery">
+        <div class="scroll-item w-[85vw] md:w-[60vw] reveal">
+          <div class="img-container aspect-[16/9]">
+            <img src="https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=1400&q=80" 
+                 alt="Grand foyer" 
+                 class="w-full h-full object-cover">
+          </div>
+          <p class="text-xs tracking-widest uppercase text-[var(--fg-muted)] mt-4">Grand Foyer</p>
+        </div>
+        <div class="scroll-item w-[85vw] md:w-[60vw] reveal reveal-delay-1">
+          <div class="img-container aspect-[16/9]">
+            <img src="https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=1400&q=80" 
+                 alt="Master suite" 
+                 class="w-full h-full object-cover">
+          </div>
+          <p class="text-xs tracking-widest uppercase text-[var(--fg-muted)] mt-4">Master Suite</p>
+        </div>
+        <div class="scroll-item w-[85vw] md:w-[60vw] reveal reveal-delay-2">
+          <div class="img-container aspect-[16/9]">
+            <img src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=1400&q=80" 
+                 alt="Infinity pool" 
+                 class="w-full h-full object-cover">
+          </div>
+          <p class="text-xs tracking-widest uppercase text-[var(--fg-muted)] mt-4">Infinity Pool</p>
+        </div>
+        <div class="scroll-item w-[85vw] md:w-[60vw] reveal reveal-delay-3">
+          <div class="img-container aspect-[16/9]">
+            <img src="https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=1400&q=80" 
+                 alt="Formal gardens" 
+                 class="w-full h-full object-cover">
+          </div>
+          <p class="text-xs tracking-widest uppercase text-[var(--fg-muted)] mt-4">Formal Gardens</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="py-24 md:py-40 px-6 md:px-12 bg-[var(--bg-dark)]">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid md:grid-cols-2 gap-16 md:gap-24">
+        <div>
+          <div class="divider reveal mb-8"></div>
+          <h2 class="reveal reveal-delay-1 font-serif text-3xl md:text-5xl font-light mb-8">Schedule a Private Viewing</h2>
+          <p class="reveal reveal-delay-2 text-sm md:text-base leading-relaxed text-[var(--fg-muted)] mb-12">
+            Experience Atlantis in person. Our team is available to arrange private tours at your convenience.
+          </p>
+
+          <form class="space-y-8" id="contactForm">
+            <div class="reveal reveal-delay-2">
+              <label class="block text-xs tracking-widest uppercase mb-3">Full Name</label>
+              <input type="text" required class="w-full bg-transparent border-b border-[var(--border)] py-3 focus:outline-none focus:border-[var(--accent)] transition-colors" placeholder="Your name">
+            </div>
+            <div class="reveal reveal-delay-3">
+              <label class="block text-xs tracking-widest uppercase mb-3">Email Address</label>
+              <input type="email" required class="w-full bg-transparent border-b border-[var(--border)] py-3 focus:outline-none focus:border-[var(--accent)] transition-colors" placeholder="your@email.com">
+            </div>
+            <div class="reveal reveal-delay-4">
+              <label class="block text-xs tracking-widest uppercase mb-3">Phone</label>
+              <input type="tel" class="w-full bg-transparent border-b border-[var(--border)] py-3 focus:outline-none focus:border-[var(--accent)] transition-colors" placeholder="+1 (555) 000-0000">
+            </div>
+            <div class="reveal reveal-delay-4 pt-4">
+              <button type="submit" class="btn-primary" data-hover>
+                <span>Request Viewing</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div class="reveal reveal-delay-2">
+          <div class="aspect-square md:aspect-auto md:h-full img-container">
+            <img src="https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=1000&q=80" 
+                 alt="Atlantis estate grounds" 
+                 class="w-full h-full object-cover">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="py-16 md:py-24 px-6 md:px-12 border-t border-[var(--border)]">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid md:grid-cols-4 gap-12">
+        <div class="md:col-span-2">
+          <span class="font-serif text-2xl tracking-widest font-light">ATLANTIS</span>
+          <p class="text-sm text-[var(--fg-muted)] mt-4 max-w-sm">A private collection of exceptional residences curated for those who appreciate the art of refined living.</p>
+        </div>
+        <div>
+          <h4 class="text-xs tracking-widest uppercase mb-6">Contact</h4>
+          <p class="text-sm text-[var(--fg-muted)] mb-2">concierge@atlantis-estate.com</p>
+          <p class="text-sm text-[var(--fg-muted)]">+1 (555) 123-4567</p>
+        </div>
+        <div>
+          <h4 class="text-xs tracking-widest uppercase mb-6">Location</h4>
+          <p class="text-sm text-[var(--fg-muted)]">1842 Waterfront Drive<br>Coastal Heights, CH 10012</p>
+        </div>
+      </div>
+      <div class="mt-16 pt-8 border-t border-[var(--border)] flex flex-col md:flex-row justify-between items-center gap-4">
+        <p class="text-xs text-[var(--fg-muted)]">2024 Atlantis Estate. All rights reserved.</p>
+        <div class="flex gap-8">
+          <a href="#" class="text-xs text-[var(--fg-muted)] hover:text-[var(--accent)] transition-colors">Privacy Policy</a>
+          <a href="#" class="text-xs text-[var(--fg-muted)] hover:text-[var(--accent)] transition-colors">Terms of Use</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Initialize after DOM is ready
+    document.addEventListener('DOMContentLoaded', () => {
+      const cursor = document.getElementById('cursor');
+      const nav = document.getElementById('nav');
+      const menuBtn = document.getElementById('menuBtn');
+      const closeMenu = document.getElementById('closeMenu');
+      const menuOverlay = document.getElementById('menuOverlay');
+      const menuLinks = document.querySelectorAll('.menu-link');
+      const loader = document.getElementById('loader');
+      const heroImg = document.getElementById('heroImg');
+
+      // Loading screen
+      setTimeout(() => {
+        loader.classList.add('hidden');
+        document.body.style.overflow = '';
+      }, 1800);
+
+      // Custom cursor
+      let mouseX = 0;
+      let mouseY = 0;
+      let cursorX = 0;
+      let cursorY = 0;
+
+      document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+      });
+
+      function animateCursor() {
+        cursorX += (mouseX - cursorX) * 0.1;
+        cursorY += (mouseY - cursorY) * 0.1;
+        cursor.style.left = cursorX + 'px';
+        cursor.style.top = cursorY + 'px';
+        requestAnimationFrame(animateCursor);
+      }
+      animateCursor();
+
+      // Cursor hover effect
+      document.querySelectorAll('a, button, [data-hover], .img-container').forEach(el => {
+        el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+        el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+      });
+
+      // Navigation scroll effect
+      let lastScroll = 0;
+      window.addEventListener('scroll', () => {
+        const currentScroll = window.pageYOffset;
+        if (currentScroll > 100) {
+          nav.classList.add('scrolled');
+        } else {
+          nav.classList.remove('scrolled');
+        }
+        lastScroll = currentScroll;
+      });
+
+      // Parallax effect on hero
+      window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        if (heroImg && scrolled < window.innerHeight) {
+          heroImg.style.transform = `translateY(${scrolled * 0.3}px) scale(1.1)`;
+        }
+      });
+
+      // Mobile menu
+      menuBtn.addEventListener('click', () => {
+        menuOverlay.classList.add('active');
+        menuLinks.forEach((link, i) => {
+          link.style.transitionDelay = `${0.1 + i * 0.1}s`;
+        });
+      });
+
+      closeMenu.addEventListener('click', () => {
+        menuOverlay.classList.remove('active');
+      });
+
+      menuLinks.forEach(link => {
+        link.addEventListener('click', () => {
+          menuOverlay.classList.remove('active');
+        });
+      });
+
+      // Scroll reveal
+      const revealElements = document.querySelectorAll('.reveal');
+      
+      const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('active');
+          }
+        });
+      }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      });
+
+      revealElements.forEach(el => revealObserver.observe(el));
+
+      // Form submission
+      const contactForm = document.getElementById('contactForm');
+      contactForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const btn = contactForm.querySelector('button');
+        btn.innerHTML = '<span>Request Sent</span>';
+        btn.style.pointerEvents = 'none';
+        setTimeout(() => {
+          contactForm.reset();
+          btn.innerHTML = '<span>Request Viewing</span>';
+          btn.style.pointerEvents = '';
+        }, 3000);
+      });
+
+      // Horizontal gallery drag scroll
+      const gallery = document.getElementById('gallery');
+      let isDown = false;
+      let startX = 0;
+      let scrollLeft = 0;
+
+      gallery.addEventListener('mousedown', (e) => {
+        isDown = true;
+        startX = e.pageX - gallery.offsetLeft;
+        scrollLeft = gallery.scrollLeft;
+      });
+
+      gallery.addEventListener('mouseleave', () => isDown = false);
+      gallery.addEventListener('mouseup', () => isDown = false);
+      gallery.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - gallery.offsetLeft;
+        const walk = (x - startX) * 2;
+        gallery.scrollLeft = scrollLeft - walk;
+      });
+    });
+
+    // CSS animation keyframes
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes scrollLine {
+        0%, 100% { transform: translateY(-100%); }
+        50% { transform: translateY(100%); }
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+</body>
+</html>
