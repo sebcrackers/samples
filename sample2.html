@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atlantis | Luxury Real Estate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        display: ['Cormorant Garamond', 'serif'],
+                        body: ['DM Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        gold: {
+                            50: '#fdfbf3',
+                            100: '#f9f3e0',
+                            200: '#f0e4be',
+                            300: '#e5d19a',
+                            400: '#d4b86a',
+                            500: '#c9a552',
+                            600: '#b8956e',
+                            700: '#a07a4f',
+                            800: '#846344',
+                            900: '#6b5139',
+                        },
+                        noir: {
+                            950: '#050505',
+                            900: '#0a0a0a',
+                            800: '#121212',
+                            700: '#1a1a1a',
+                            600: '#242424',
+                            500: '#2e2e2e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --bg: #050505;
+            --bg-card: #0d0d0d;
+            --fg: #f5f0e8;
+            --fg-muted: #a09a90;
+            --gold: #c9a552;
+            --gold-dim: #8a7340;
+            --border: #1f1f1f;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
+            }
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            overflow-x: hidden;
+        }
+
+        ::selection {
+            background: var(--gold);
+            color: var(--bg);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--gold-dim);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--gold);
+        }
+
+        /* Background Atmosphere */
+        .bg-atmosphere {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background: 
+                radial-gradient(ellipse 80% 50% at 50% 0%, rgba(201, 165, 82, 0.04) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 100% 100%, rgba(201, 165, 82, 0.03) 0%, transparent 40%),
+                radial-gradient(ellipse 50% 50% at 0% 50%, rgba(201, 165, 82, 0.02) 0%, transparent 40%);
+        }
+
+        .noise-overlay {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+
+        /* Typography */
+        .font-display {
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        /* Golden Line Animation */
+        .golden-line {
+            width: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .golden-line.revealed {
+            width: 120px;
+        }
+
+        /* Navigation */
+        .nav-link {
+            position: relative;
+            color: var(--fg-muted);
+            transition: color 0.3s ease;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--gold);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--fg);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* Hero */
+        .hero-title {
+            font-weight: 300;
+            letter-spacing: -0.02em;
+            line-height: 0.95;
+        }
+
+        .hero-title .gold-accent {
+            color: var(--gold);
+            font-style: italic;
+        }
+
+        /* Property Card */
+        .property-card {
+            position: relative;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.5s ease;
+        }
+
+        .property-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(201, 165, 82, 0.3);
+        }
+
+        .property-card .image-wrapper {
+            overflow: hidden;
+        }
+
+        .property-card img {
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .property-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .property-card .overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, transparent 50%, rgba(5, 5, 5, 0.9) 100%);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .property-card:hover .overlay {
+            opacity: 1;
+        }
+
+        /* Button */
+        .btn-gold {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 32px;
+            background: transparent;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            cursor: pointer;
+            overflow: hidden;
+            transition: color 0.4s ease, border-color 0.4s ease;
+        }
+
+        .btn-gold::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--gold);
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-gold:hover {
+            color: var(--bg);
+        }
+
+        .btn-gold:hover::before {
+            transform: translateY(0);
+        }
+
+        .btn-gold span, .btn-gold svg {
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-gold svg {
+            transition: transform 0.3s ease;
+        }
+
+        .btn-gold:hover svg {
+            transform: translateX(4px);
+        }
+
+        /* Reveal Animations */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .reveal.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+        .reveal-delay-4 { transition-delay: 0.4s; }
+
+        /* Divider */
+        .gold-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+        }
+
+        /* Feature */
+        .feature-number {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 72px;
+            font-weight: 300;
+            color: var(--gold-dim);
+            line-height: 1;
+        }
+
+        /* Footer Link */
+        .footer-link {
+            color: var(--fg-muted);
+            transition: color 0.3s ease;
+        }
+
+        .footer-link:hover {
+            color: var(--gold);
+        }
+
+        /* Image Shimmer */
+        .img-shimmer {
+            position: relative;
+        }
+
+        .img-shimmer::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(201, 165, 82, 0.1), transparent);
+            transform: translateX(-100%);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* Focus States */
+        a:focus-visible, button:focus-visible {
+            outline: 2px solid var(--gold);
+            outline-offset: 4px;
+        }
+
+        /* Cursor */
+        .custom-cursor {
+            width: 20px;
+            height: 20px;
+            border: 1px solid var(--gold);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.15s ease, opacity 0.15s ease;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+        }
+
+        .custom-cursor.visible {
+            opacity: 1;
+        }
+
+        .custom-cursor.hovering {
+            transform: translate(-50%, -50%) scale(1.5);
+            background: rgba(201, 165, 82, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Atmosphere -->
+    <div class="bg-atmosphere"></div>
+    <div class="noise-overlay"></div>
+
+    <!-- Custom Cursor -->
+    <div class="custom-cursor" id="cursor"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 transition-all duration-500" id="navbar">
+        <div class="max-w-7xl mx-auto px-6 lg:px-12">
+            <div class="flex items-center justify-between h-20 lg:h-24">
+                <!-- Logo -->
+                <a href="#" class="relative z-10">
+                    <span class="font-display text-2xl lg:text-3xl font-light tracking-wide" style="color: var(--fg);">Atlantis</span>
+                </a>
+
+                <!-- Desktop Nav -->
+                <div class="hidden md:flex items-center gap-10 lg:gap-14">
+                    <a href="#properties" class="nav-link text-sm tracking-widest uppercase">Properties</a>
+                    <a href="#about" class="nav-link text-sm tracking-widest uppercase">About</a>
+                    <a href="#contact" class="nav-link text-sm tracking-widest uppercase">Contact</a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button class="md:hidden relative z-10 w-10 h-10 flex flex-col items-center justify-center gap-1.5" id="menuBtn" aria-label="Toggle menu">
+                    <span class="w-6 h-px bg-current transition-transform duration-300" id="menuLine1"></span>
+                    <span class="w-6 h-px bg-current transition-opacity duration-300" id="menuLine2"></span>
+                    <span class="w-6 h-px bg-current transition-transform duration-300" id="menuLine3"></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div class="fixed inset-0 bg-noir-900/98 backdrop-blur-xl z-40 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-500" id="mobileMenu">
+            <div class="text-center">
+                <a href="#properties" class="block font-display text-4xl mb-8 hover:text-gold-500 transition-colors">Properties</a>
+                <a href="#about" class="block font-display text-4xl mb-8 hover:text-gold-500 transition-colors">About</a>
+                <a href="#contact" class="block font-display text-4xl hover:text-gold-500 transition-colors">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative min-h-screen flex items-center justify-center px-6 lg:px-12 pt-20">
+        <!-- Hero Background Image -->
+        <div class="absolute inset-0 z-0">
+            <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&q=80" alt="" class="w-full h-full object-cover opacity-30" style="filter: grayscale(30%) contrast(1.1);">
+            <div class="absolute inset-0 bg-gradient-to-b from-noir-950 via-noir-950/80 to-noir-950"></div>
+        </div>
+
+        <div class="relative z-10 max-w-7xl mx-auto w-full">
+            <div class="max-w-4xl">
+                <!-- Pre-title -->
+                <div class="flex items-center gap-4 mb-8 reveal">
+                    <div class="golden-line h-px" style="width: 60px;"></div>
+                    <span class="text-sm tracking-[0.3em] uppercase" style="color: var(--fg-muted);">Est. 1987</span>
+                </div>
+
+                <!-- Main Title -->
+                <h1 class="font-display hero-title text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl mb-8 reveal reveal-delay-1" style="color: var(--fg);">
+                    Where <span class="gold-accent">luxury</span><br>
+                    finds its home
+                </h1>
+
+                <!-- Subtitle -->
+                <p class="text-lg md:text-xl font-light max-w-xl mb-12 reveal reveal-delay-2" style="color: var(--fg-muted); line-height: 1.8;">
+                    Curating exceptional properties for discerning individuals who seek more than a residence—they seek a legacy.
+                </p>
+
+                <!-- CTA -->
+                <div class="reveal reveal-delay-3">
+                    <button class="btn-gold">
+                        <span>Explore Collection</span>
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M3 8h10M9 4l4 4-4 4"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 reveal">
+            <span class="text-xs tracking-[0.3em] uppercase" style="color: var(--fg-muted);">Scroll</span>
+            <div class="w-px h-16 bg-gradient-to-b from-gold-600 to-transparent"></div>
+        </div>
+    </section>
+
+    <!-- Featured Properties -->
+    <section id="properties" class="relative py-32 lg:py-40 px-6 lg:px-12">
+        <div class="max-w-7xl mx-auto">
+            <!-- Section Header -->
+            <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between mb-16 lg:mb-24">
+                <div>
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="golden-line"></div>
+                        <span class="text-sm tracking-[0.3em] uppercase" style="color: var(--fg-muted);">Featured</span>
+                    </div>
+                    <h2 class="font-display text-4xl md:text-5xl lg:text-6xl font-light" style="color: var(--fg);">
+                        Exceptional Properties
+                    </h2>
+                </div>
+                <p class="max-w-md mt-6 lg:mt-0 font-light" style="color: var(--fg-muted);">
+                    Each residence in our collection represents the pinnacle of architectural excellence and refined living.
+                </p>
+            </div>
+
+            <!-- Properties Grid -->
+            <div class="grid md:grid-cols-2 gap-6 lg:gap-8">
+                <!-- Property 1 -->
+                <div class="property-card rounded-sm reveal">
+                    <div class="image-wrapper aspect-[4/3]">
+                        <img src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=1200&q=80" alt="Coastal Villa" class="w-full h-full object-cover">
+                    </div>
+                    <div class="overlay rounded-sm"></div>
+                    <div class="p-6 lg:p-8">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-xs tracking-[0.2em] uppercase" style="color: var(--gold);">Malibu, California</span>
+                            <span class="text-sm" style="color: var(--fg-muted);">12,500 sq ft</span>
+                        </div>
+                        <h3 class="font-display text-2xl lg:text-3xl font-light mb-3" style="color: var(--fg);">Coastal Villa</h3>
+                        <p class="text-sm font-light" style="color: var(--fg-muted);">Oceanfront masterpiece with panoramic views, private beach access, and timeless contemporary design.</p>
+                    </div>
+                </div>
+
+                <!-- Property 2 -->
+                <div class="property-card rounded-sm reveal reveal-delay-1">
+                    <div class="image-wrapper aspect-[4/3]">
+                        <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=80" alt="Mountain Estate" class="w-full h-full object-cover">
+                    </div>
+                    <div class="overlay rounded-sm"></div>
+                    <div class="p-6 lg:p-8">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-xs tracking-[0.2em] uppercase" style="color: var(--gold);">Aspen, Colorado</span>
+                            <span class="text-sm" style="color: var(--fg-muted);">8,200 sq ft</span>
+                        </div>
+                        <h3 class="font-display text-2xl lg:text-3xl font-light mb-3" style="color: var(--fg);">Mountain Estate</h3>
+                        <p class="text-sm font-light" style="color: var(--fg-muted);">A sanctuary nestled in pristine wilderness, where rustic elegance meets modern sophistication.</p>
+                    </div>
+                </div>
+
+                <!-- Property 3 -->
+                <div class="property-card rounded-sm reveal reveal-delay-2">
+                    <div class="image-wrapper aspect-[4/3]">
+                        <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1200&q=80" alt="Penthouse Suite" class="w-full h-full object-cover">
+                    </div>
+                    <div class="overlay rounded-sm"></div>
+                    <div class="p-6 lg:p-8">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-xs tracking-[0.2em] uppercase" style="color: var(--gold);">Manhattan, New York</span>
+                            <span class="text-sm" style="color: var(--fg-muted);">6,800 sq ft</span>
+                        </div>
+                        <h3 class="font-display text-2xl lg:text-3xl font-light mb-3" style="color: var(--fg);">Penthouse Suite</h3>
+                        <p class="text-sm font-light" style="color: var(--fg-muted);">Crown jewel overlooking Central Park, featuring floor-to-ceiling windows and museum-quality finishes.</p>
+                    </div>
+                </div>
+
+                <!-- Property 4 -->
+                <div class="property-card rounded-sm reveal reveal-delay-3">
+                    <div class="image-wrapper aspect-[4/3]">
+                        <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200&q=80" alt="Desert Retreat" class="w-full h-full object-cover">
+                    </div>
+                    <div class="overlay rounded-sm"></div>
+                    <div class="p-6 lg:p-8">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-xs tracking-[0.2em] uppercase" style="color: var(--gold);">Scottsdale, Arizona</span>
+                            <span class="text-sm" style="color: var(--fg-muted);">9,400 sq ft</span>
+                        </div>
+                        <h3 class="font-display text-2xl lg:text-3xl font-light mb-3" style="color: var(--fg);">Desert Retreat</h3>
+                        <p class="text-sm font-light" style="color: var(--fg-muted);">Architectural harmony with nature, featuring indoor-outdoor living spaces and stunning desert vistas.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Divider -->
+    <div class="gold-divider max-w-7xl mx-auto"></div>
+
+    <!-- About Section -->
+    <section id="about" class="py-32 lg:py-40 px-6 lg:px-12">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+                <!-- Image -->
+                <div class="relative reveal">
+                    <div class="aspect-[3/4] overflow-hidden rounded-sm">
+                        <img src="https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=1000&q=80" alt="Luxury interior" class="w-full h-full object-cover">
+                    </div>
+                    <!-- Decorative Frame -->
+                    <div class="absolute -top-4 -left-4 w-full h-full border border-gold-600/20 rounded-sm -z-10"></div>
+                </div>
+
+                <!-- Content -->
+                <div>
+                    <div class="flex items-center gap-4 mb-6 reveal">
+                        <div class="golden-line"></div>
+                        <span class="text-sm tracking-[0.3em] uppercase" style="color: var(--fg-muted);">Our Legacy</span>
+                    </div>
+
+                    <h2 class="font-display text-4xl md:text-5xl font-light mb-8 reveal reveal-delay-1" style="color: var(--fg);">
+                        Four decades of <span style="color: var(--gold); font-style: italic;">extraordinary</span>
+                    </h2>
+
+                    <p class="text-lg font-light mb-8 reveal reveal-delay-2" style="color: var(--fg-muted); line-height: 1.9;">
+                        Atlantis was founded on a singular vision: to connect exceptional individuals with properties that transcend the ordinary. We believe that a home should be a reflection of one's achievements, aspirations, and appreciation for the finer aspects of life.
+                    </p>
+
+                    <p class="text-lg font-light mb-12 reveal reveal-delay-3" style="color: var(--fg-muted); line-height: 1.9;">
+                        Our curated approach ensures that every property in our portfolio meets the highest standards of architectural distinction, location, and timeless appeal.
+                    </p>
+
+                    <!-- Stats -->
+                    <div class="grid grid-cols-3 gap-8 reveal reveal-delay-4">
+                        <div>
+                            <div class="feature-number">37</div>
+                            <div class="text-xs tracking-[0.2em] uppercase mt-2" style="color: var(--fg-muted);">Years</div>
+                        </div>
+                        <div>
+                            <div class="feature-number">850</div>
+                            <div class="text-xs tracking-[0.2em] uppercase mt-2" style="color: var(--fg-muted);">Properties</div>
+                        </div>
+                        <div>
+                            <div class="feature-number">12</div>
+                            <div class="text-xs tracking-[0.2em] uppercase mt-2" style="color: var(--fg-muted);">Countries</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Full-width Image Section -->
+    <section class="relative h-[60vh] lg:h-[80vh] overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1600573472550-8090b5e0745e?w=1920&q=80" alt="Luxury property exterior" class="w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-t from-noir-950 via-noir-950/40 to-noir-950/60"></div>
+        <div class="absolute inset-0 flex items-center justify-center text-center px-6">
+            <div>
+                <p class="font-display text-2xl md:text-3xl lg:text-4xl font-light italic max-w-3xl mx-auto reveal" style="color: var(--fg);">
+                    "True luxury lies not in opulence, but in the quiet confidence of exceptional quality."
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-32 lg:py-40 px-6 lg:px-12">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid lg:grid-cols-2 gap-16 lg:gap-24">
+                <!-- Contact Info -->
+                <div>
+                    <div class="flex items-center gap-4 mb-6 reveal">
+                        <div class="golden-line"></div>
+                        <span class="text-sm tracking-[0.3em] uppercase" style="color: var(--fg-muted);">Contact</span>
+                    </div>
+
+                    <h2 class="font-display text-4xl md:text-5xl font-light mb-8 reveal reveal-delay-1" style="color: var(--fg);">
+                        Begin your journey
+                    </h2>
+
+                    <p class="text-lg font-light mb-12 reveal reveal-delay-2" style="color: var(--fg-muted); line-height: 1.9;">
+                        We invite you to schedule a private consultation with our team of specialists. Discover how Atlantis can guide you toward your ideal property.
+                    </p>
+
+                    <div class="space-y-6 reveal reveal-delay-3">
+                        <div>
+                            <div class="text-xs tracking-[0.2em] uppercase mb-2" style="color: var(--fg-muted);">Telephone</div>
+                            <a href="tel:+12125551234" class="text-lg hover:text-gold-500 transition-colors" style="color: var(--fg);">+1 (212) 555 1234</a>
+                        </div>
+                        <div>
+                            <div class="text-xs tracking-[0.2em] uppercase mb-2" style="color: var(--fg-muted);">Email</div>
+                            <a href="mailto:enquiries@atlantis.com" class="text-lg hover:text-gold-500 transition-colors" style="color: var(--fg);">enquiries@atlantis.com</a>
+                        </div>
+                        <div>
+                            <div class="text-xs tracking-[0.2em] uppercase mb-2" style="color: var(--fg-muted);">Office</div>
+                            <p class="text-lg" style="color: var(--fg);">432 Park Avenue, New York, NY 10022</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Form -->
+                <div class="reveal reveal-delay-2">
+                    <form class="space-y-8" id="contactForm">
+                        <div>
+                            <label for="name" class="block text-xs tracking-[0.2em] uppercase mb-3" style="color: var(--fg-muted);">Name</label>
+                            <input type="text" id="name" name="name" required
+                                class="w-full bg-transparent border-b py-3 focus:outline-none transition-colors"
+                                style="border-color: var(--border); color: var(--fg);"
+                                onfocus="this.style.borderColor='var(--gold)'"
+                                onblur="this.style.borderColor='var(--border)'">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-xs tracking-[0.2em] uppercase mb-3" style="color: var(--fg-muted);">Email</label>
+                            <input type="email" id="email" name="email" required
+                                class="w-full bg-transparent border-b py-3 focus:outline-none transition-colors"
+                                style="border-color: var(--border); color: var(--fg);"
+                                onfocus="this.style.borderColor='var(--gold)'"
+                                onblur="this.style.borderColor='var(--border)'">
+                        </div>
+                        <div>
+                            <label for="message" class="block text-xs tracking-[0.2em] uppercase mb-3" style="color: var(--fg-muted);">Message</label>
+                            <textarea id="message" name="message" rows="4" required
+                                class="w-full bg-transparent border-b py-3 focus:outline-none transition-colors resize-none"
+                                style="border-color: var(--border); color: var(--fg);"
+                                onfocus="this.style.borderColor='var(--gold)'"
+                                onblur="this.style.borderColor='var(--border)'"></textarea>
+                        </div>
+                        <button type="submit" class="btn-gold mt-4">
+                            <span>Send Inquiry</span>
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M14 2L7 9M14 2L9.5 14L7 9M14 2L2 6.5L7 9"/>
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t py-16 lg:py-20 px-6 lg:px-12" style="border-color: var(--border);">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
+                <!-- Logo & Copyright -->
+                <div>
+                    <span class="font-display text-2xl font-light" style="color: var(--fg);">Atlantis</span>
+                    <p class="text-sm mt-2" style="color: var(--fg-muted);">© 2024 Atlantis Real Estate. All rights reserved.</p>
+                </div>
+
+                <!-- Links -->
+                <div class="flex flex-wrap gap-8">
+                    <a href="#" class="footer-link text-sm">Privacy Policy</a>
+                    <a href="#" class="footer-link text-sm">Terms of Service</a>
+                    <a href="#" class="footer-link text-sm">Instagram</a>
+                    <a href="#" class="footer-link text-sm">LinkedIn</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize variables first
+        const cursor = document.getElementById('cursor');
+        const navbar = document.getElementById('navbar');
+        const menuBtn = document.getElementById('menuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const menuLine1 = document.getElementById('menuLine1');
+        const menuLine2 = document.getElementById('menuLine2');
+        const menuLine3 = document.getElementById('menuLine3');
+        const contactForm = document.getElementById('contactForm');
+
+        let menuOpen = false;
+        let lastScroll = 0;
+
+        // Custom Cursor
+        if (window.matchMedia('(pointer: fine)').matches) {
+            document.addEventListener('mousemove', (e) => {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+                cursor.classList.add('visible');
+            });
+
+            document.addEventListener('mouseleave', () => {
+                cursor.classList.remove('visible');
+            });
+
+            // Add hover effect to interactive elements
+            const interactiveElements = document.querySelectorAll('a, button, input, textarea, .property-card');
+            interactiveElements.forEach(el => {
+                el.addEventListener('mouseenter', () => cursor.classList.add('hovering'));
+                el.addEventListener('mouseleave', () => cursor.classList.remove('hovering'));
+            });
+        }
+
+        // Scroll Reveal Observer
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('revealed');
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+
+        document.querySelectorAll('.reveal, .golden-line').forEach(el => {
+            revealObserver.observe(el);
+        });
+
+        // Navbar Background on Scroll
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            
+            if (currentScroll > 100) {
+                navbar.style.background = 'rgba(5, 5, 5, 0.9)';
+                navbar.style.backdropFilter = 'blur(20px)';
+            } else {
+                navbar.style.background = 'transparent';
+                navbar.style.backdropFilter = 'none';
+            }
+
+            lastScroll = currentScroll;
+        });
+
+        // Mobile Menu Toggle
+        menuBtn.addEventListener('click', () => {
+            menuOpen = !menuOpen;
+            
+            if (menuOpen) {
+                mobileMenu.style.opacity = '1';
+                mobileMenu.style.pointerEvents = 'auto';
+                menuLine1.style.transform = 'rotate(45deg) translateY(4px)';
+                menuLine2.style.opacity = '0';
+                menuLine3.style.transform = 'rotate(-45deg) translateY(-4px)';
+                document.body.style.overflow = 'hidden';
+            } else {
+                mobileMenu.style.opacity = '0';
+                mobileMenu.style.pointerEvents = 'none';
+                menuLine1.style.transform = 'none';
+                menuLine2.style.opacity = '1';
+                menuLine3.style.transform = 'none';
+                document.body.style.overflow = '';
+            }
+        });
+
+        // Close mobile menu on link click
+        mobileMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                menuOpen = false;
+                mobileMenu.style.opacity = '0';
+                mobileMenu.style.pointerEvents = 'none';
+                menuLine1.style.transform = 'none';
+                menuLine2.style.opacity = '1';
+                menuLine3.style.transform = 'none';
+                document.body.style.overflow = '';
+            });
+        });
+
+        // Smooth Scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Form submission
+        contactForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const btn = contactForm.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<span>Message Sent</span>';
+            btn.style.background = 'var(--gold)';
+            btn.style.color = 'var(--bg)';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.style.background = '';
+                btn.style.color = '';
+                btn.disabled = false;
+                contactForm.reset();
+            }, 3000);
+        });
+
+        // Parallax effect on hero image
+        const heroImg = document.querySelector('section:first-of-type img');
+        if (heroImg) {
+            window.addEventListener('scroll', () => {
+                if (window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+                    const scrolled = window.pageYOffset;
+                    heroImg.style.transform = `translateY(${scrolled * 0.3}px)`;
+                }
+            });
+        }
+
+        // Property cards subtle parallax on mouse move
+        document.querySelectorAll('.property-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                if (window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    const rotateX = (y - centerY) / 30;
+                    const rotateY = (centerX - x) / 30;
+                    
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-8px)`;
+                }
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = '';
+            });
+        });
+    </script>
+</body>
+</html>
